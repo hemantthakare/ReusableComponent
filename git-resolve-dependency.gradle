@@ -1,0 +1,80 @@
+task gitResolveDependency() {
+    doFirst {
+        def jsonFile = file("myworkspace.json")
+
+        if (!jsonFile.exists()) {
+            throw new GradleException("Error: json file not found")
+            return
+        }
+        def jsonParse = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+
+        //line to change bunch of dependencies
+        def dependencies = jsonParse.default
+        if (dependencies == null) {
+            throw new GradleException('Error:collection"' + collection + '"json file not found')
+            return
+        }
+
+        dependencies.eachWithIndex { def entry, int i ->
+            def repoDir = file(entry.name)
+            def repoDirGit = file(entry.name + '/.git')
+            if (repoDirGit.exists()) {
+                try {
+                    if (entry.revision) {
+                        checkoutRevision(entry.name, entry.revision)
+                    } else if (entry.branch) {
+                        checkoutBranch(entry.name, entry.branch)
+                    }
+                } catch (e) {
+                    throw new GradleException('Error: ' + entry.name + ' ' + e.toString())
+                }
+            } else {
+                if (repoDir.exists()) {
+                    delete repoDir
+                }
+                if (entry.revision) {
+                    cloneFromRevision(entry.revision, entry.name, entry.url)
+                } else if (entry.branch) {
+                    cloneFromBranch(entry.branch, entry.url)
+                }
+            }
+        }
+    }
+}
+
+def checkoutBranch(name, branch) {
+    exec {
+        executable 'git'
+        args '-C', name, 'gc', "--prune=now"
+    }
+    exec {
+        executable 'git'
+        args '-C', name, 'checkout', branch
+    }
+    exec {
+        executable 'git'
+        args '-C', name, 'pull'
+    }
+}
+
+def checkoutRevision(name, revision) {
+    exec {
+        executable 'git'
+        args '-C', name, 'checkout', revision
+    }
+}
+
+def cloneFromBranch(branch, url) {
+    exec {
+        executable 'git'
+        args 'clone', '-b', branch, url
+    }
+}
+
+def cloneFromRevision(revision, name, url) {
+    exec {
+        executable 'git'
+        args 'clone', url
+    }
+    checkoutRevision(name, revision)
+}

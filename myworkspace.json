@@ -1,6 +1,9 @@
 {
-  "default":[
-  {
-  }
-]
+  "default": [
+    {
+      "name": "WidgetKit",
+      "url": "https://github.com/hemantthakare/WidgetKit.git",
+      "branch": "master"
+    }
+  ]
 }

@@ -6,4 +6,10 @@
     android:layout_height="match_parent"
     tools:context=".DemoActivity">
 
+    <TextView
+        android:id="@+id/tvDemoActivity"
+        android:layout_width="match_parent"
+        android:gravity="center"
+        android:text="Demo Activity"
+        android:layout_height="match_parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
