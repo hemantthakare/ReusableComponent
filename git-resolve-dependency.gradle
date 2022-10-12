@@ -1,18 +1,18 @@
+import groovy.json.JsonSlurper
+
 task gitResolveDependency() {
     doFirst {
         def jsonFile = file("myworkspace.json")
 
         if (!jsonFile.exists()) {
             throw new GradleException("Error: json file not found")
-            return
         }
-        def jsonParse = new groovy.json.JsonSlurper().parseText(jsonFile.text)
+        def jsonParse = new JsonSlurper().parseText(jsonFile.text)
 
         //line to change bunch of dependencies
         def dependencies = jsonParse.default
         if (dependencies == null) {
             throw new GradleException('Error:collection"' + collection + '"json file not found')
-            return
         }
 
         dependencies.eachWithIndex { def entry, int i ->
